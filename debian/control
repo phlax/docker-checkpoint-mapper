@@ -1,0 +1,16 @@
+Source: docker-triggers
+Section: devel
+Priority: optional
+Maintainer: "Ryan Northey" <ryan@synca.io>
+Build-Depends: debhelper (>=11~)
+Standards-Version: 4.1.4
+Homepage: https://github.com/phlax/l10n.cloud/frontend
+
+Package: docker-triggers
+Section: devel
+Priority: optional
+Architecture: all
+Depends: jq, docker-ce-cli
+Description: Docker triggers
+ Listen to Docker events and trigger scripts when
+ given pattern match the event.

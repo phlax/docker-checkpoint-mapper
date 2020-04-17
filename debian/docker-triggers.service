@@ -1,0 +1,8 @@
+[Unit]
+Description=Docker event trigger service
+
+[Service]
+ExecStart=/usr/bin/docker-triggers
+
+[Install]
+WantedBy=multi-user.target

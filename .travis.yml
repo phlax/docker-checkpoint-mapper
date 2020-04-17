@@ -1,0 +1,36 @@
+
+install:
+  - make image
+
+script:
+  - cd example
+  - docker-compose up -d
+  - docker-compose logs | grep "Docker event trigger"
+
+  # no events so far - config is empty
+  - docker-compose exec docker-triggers systemctl status --no-pager -l docker-triggers
+
+  # mangle the config
+  - cat config/test.json > config/config.json
+  - docker-compose exec docker-triggers systemctl restart docker-triggers
+  - docker-compose exec docker-triggers systemctl status --no-pager -l -n500 docker-triggers
+
+  # run a container - name does not match filter
+  - docker run -ti debian:buster-slim echo "BOOM"
+  - docker-compose exec docker-triggers systemctl status --no-pager -l -n500 docker-triggers
+
+  # run a container with matching name
+  - docker run --name testcontainer -ti debian:buster-slim echo "BOOM"
+  - docker-compose exec docker-triggers systemctl status --no-pager -l -n500 docker-triggers
+  - cd ..
+
+before_deploy:
+  - echo $DOCKER_API_TOKEN | docker login -u phlax --password-stdin
+
+deploy:
+  provider: script
+  script: make hub-image
+  skip_cleanup: true
+  on:
+    all_branches: true
+    condition: $TRAVIS_BRANCH =~ ^(master)$

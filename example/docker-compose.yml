@@ -1,0 +1,26 @@
+# docker-compose for phlax/docker-triggers
+#
+version: "2.4"
+services:
+
+  docker-triggers:
+    image: phlax/docker-triggers
+    tty: true
+
+    volumes:
+      # systemd requirement
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      # docker socket
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+      # trigger script
+      - ./do-something:/usr/local/bin/do-something:ro
+
+      # config
+      - ./config:/etc/docker-triggers
+
+    # required by systemd
+    tmpfs:
+    - /run
+    - /run/lock
+    - /tmp

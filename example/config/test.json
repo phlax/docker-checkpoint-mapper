@@ -1,0 +1,15 @@
+{
+    "filters": [
+        "type=container",
+        "event=connect",
+        "event=start",
+        "event=mount",
+        "event=pause",
+        "event=unpause",
+        "event=create"],
+    "triggers": {
+        "/usr/local/bin/do-something": [
+            ". | select(.Actor | .Attributes | .name | test(\"othercontainer\"))",
+            ". | select(.Actor | .Attributes | .name | test(\"testcontainer\"))"]
+    }
+}

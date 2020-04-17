@@ -1,0 +1,25 @@
+#!/bin/bash -e
+
+TRIGGER_CONFIG=/etc/docker-triggers/config.json
+CONFIG=$(cat $TRIGGER_CONFIG)
+
+FILTERS=
+for filter in $(echo $CONFIG | jq -r '.filters // {} | .[] '); do
+    FILTERS="${FILTERS}-f $filter "
+done
+
+
+docker events $FILTERS --format "{{json .}}" | while read line; do
+    for trigger in $(echo $CONFIG | jq '.triggers // {} | keys[]'); do
+	triggers=$(echo $CONFIG | jq -r ".triggers // {} | .[$trigger] // []")
+	for value in $(echo $triggers | jq -cr ".[] | @base64"); do
+	    match=$(echo "$value" | base64 --decode)
+	    found=$(echo "${line}" | jq "${match}")
+	    if [ ! -z "$found" ]; then
+		command=$(echo $trigger | jq -r '.')
+		$command "${line}"
+		break
+	    fi
+	done
+    done
+done
